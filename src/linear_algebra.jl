@@ -1,14 +1,18 @@
-function nterms(t::SymbolicT)
-    if iscall(t)
-        return sum(nterms, arguments(t))
-    else
-        return 1
+function nterms(t::SymbolicT, cache::Base.IdDict{SymbolicT, Int} = Base.IdDict{SymbolicT, Int}())
+    closure = let t = t, cache = cache
+        function __closure()
+            iscall(t) || return 1
+            return sum(Base.Fix2(nterms, cache), arguments(t))
+        end
     end
+    get!(closure, cache, t)
 end
 nterms(t::Num) = nterms(unwrap(t))
+nterms(t::Num, cache) = nterms(unwrap(t), cache)
 
 # Soft pivoted
 function sym_lu(A::AbstractMatrix{Num}; check=true)
+    nterms_cache = Base.IdDict{SymbolicT, Int}()
     SINGULAR = typemax(Int)
     m, n = size(A)
     F = Matrix{Num}(undef, size(A)...)
@@ -20,7 +24,7 @@ function sym_lu(A::AbstractMatrix{Num}; check=true)
         kp = k
         amin = SINGULAR
         for i in k:m
-            absi = _iszero(F[i, k]) ? SINGULAR : nterms(F[i,k])
+            absi = _iszero(F[i, k]) ? SINGULAR : nterms(F[i,k], nterms_cache)
             if absi < amin
                 kp = i
                 amin = absi
