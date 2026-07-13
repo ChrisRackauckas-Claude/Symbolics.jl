@@ -21,6 +21,7 @@ using Reexport
 using Setfield
 
     import DomainSets: Domain, DomainSets
+    import IntervalSets
 
 using TermInterface
 import TermInterface: maketerm, iscall, operation, arguments, metadata
