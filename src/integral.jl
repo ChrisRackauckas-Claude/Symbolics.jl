@@ -75,7 +75,7 @@ function _isequal_integral_domain(
     )
     if eltype(d1) <: Union{Num, SymbolicT} || eltype(d2) <: Union{Num, SymbolicT}
         return IntervalSets.closedendpoints(d1) == IntervalSets.closedendpoints(d2) &&
-            all(splat(isequal), zip(IntervalSets.endpoints(d1), IntervalSets.endpoints(d2)))
+            isequal(IntervalSets.endpoints(d1), IntervalSets.endpoints(d2))
     end
     return isequal(d1, d2)
 end
