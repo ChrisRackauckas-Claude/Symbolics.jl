@@ -22,6 +22,10 @@ exactly, `DomainError` is thrown.
 The Groebner.jl backend provides a number of useful keyword arguments, which are
 also available for this function. See `?Groebner.groebner`.
 
+With the default `InputOrdering()`, variables use degree reverse lexicographic
+order after sorting by [`tosymbol`](@ref). Pass an explicit ordering when
+distinct variables have the same symbolic name.
+
 ## Example
 
 ```jldoctest

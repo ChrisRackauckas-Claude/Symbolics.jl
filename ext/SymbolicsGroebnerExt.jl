@@ -15,10 +15,20 @@ function Symbolics.groebner_basis(polynomials::Vector{Num}; ordering=InputOrderi
     Symbolics.poly_to_symbol(basis, poly_to_bs)
 end
 
-function groebner_basis_poly(polynoms::Vector{<:DP.Polynomial}, poly_to_bs::Bijections.Bijection; ordering=InputOrdering(), kwargs...)
+function groebner_ordering(ordering, poly_to_bs)
     bs_to_poly = Bijections.active_inv(poly_to_bs)
-    ordering = Groebner.ordering_transform(ordering, bs_to_poly)
-    return Groebner.groebner(polynoms; ordering=ordering, kwargs...)
+    if ordering isa InputOrdering
+        variables = collect(Bijections.image(poly_to_bs))
+        variable_names = Symbolics.tosymbol.(variables)
+        allunique(variable_names) || throw(ArgumentError("InputOrdering requires unique symbolic variable names; pass an explicit ordering."))
+        ordering = DegRevLex(variables[sortperm(variable_names)])
+    end
+    return Groebner.ordering_transform(ordering, bs_to_poly)
+end
+
+function groebner_basis_poly(polynoms::Vector{<:DP.Polynomial}, poly_to_bs::Bijections.Bijection; ordering = InputOrdering(), kwargs...)
+    ordering = groebner_ordering(ordering, poly_to_bs)
+    return Groebner.groebner(polynoms; ordering = ordering, kwargs...)
 end
 
 """
@@ -42,9 +52,10 @@ julia> @variables x y;
 julia> is_groebner_basis([x^2 - y^2, x*y^2 + x, y^3 + y])
 ```
 """
-function Symbolics.is_groebner_basis(polynomials::Vector{<:Union{Num, BasicSymbolic}}; kwargs...)
-    polynoms, _ = Symbolics.symbol_to_poly(polynomials)
-    Groebner.isgroebner(polynoms; kwargs...)
+function Symbolics.is_groebner_basis(polynomials::Vector{<:Union{Num, BasicSymbolic}}; ordering = InputOrdering(), kwargs...)
+    polynoms, poly_to_bs = Symbolics.symbol_to_poly(polynomials)
+    ordering = groebner_ordering(ordering, poly_to_bs)
+    return Groebner.isgroebner(polynoms; ordering = ordering, kwargs...)
 end
 
 ### Solver ###

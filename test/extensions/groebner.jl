@@ -29,6 +29,18 @@ end
 @variables x1 x2 x3 x4
 @test isequal(expand.(groebner_basis([x1, x, y])), [y, x1, x])
 
+system = [x1 + x2, x1 * x2 - 1]
+@test isequal(expand.(groebner_basis(system)), [x1 + x2, 1 + x2^2])
+@test isequal(expand.(groebner_basis(system, ordering = DegRevLex(x2, x1))), [x1 + x2, 1 + x1^2])
+
+@variables τ q(τ) A(τ)[1:1]
+system = [q + A[1], q * A[1] - 1]
+@test isequal(expand.(groebner_basis(system)), [A[1] + q, 1 + q^2])
+
+@variables f(x)
+named_f = Symbolics.variable(Symbol("f(x)"))
+@test_throws ArgumentError groebner_basis([f + named_f, f * named_f - 1])
+
 # input unchanged
 f1 = [x2, x1, x4, x3]
 f2 = [x2, x1, x4, x3]
