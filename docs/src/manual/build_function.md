@@ -24,7 +24,7 @@ build_function
 
 ## Low-Level Code Generation
 
-Consumers that already maintain a symbolic `IRStructure` can generate Julia function
+Consumers that already maintain a `SymbolicUtils.IRStructure` can generate Julia function
 expressions directly with `codegen_function`.
 
 ```@docs
