@@ -21,7 +21,8 @@ function groebner_ordering(ordering, poly_to_bs)
         variables = collect(Bijections.image(poly_to_bs))
         variable_names = Symbolics.tosymbol.(variables)
         allunique(variable_names) || throw(ArgumentError("InputOrdering requires unique symbolic variable names; pass an explicit ordering."))
-        ordering = DegRevLex(variables[sortperm(variable_names)])
+        variables = variables[sortperm(variable_names)]
+        return DegRevLex([bs_to_poly[variable] for variable in variables])
     end
     return Groebner.ordering_transform(ordering, bs_to_poly)
 end
