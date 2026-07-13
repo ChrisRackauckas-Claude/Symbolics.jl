@@ -481,21 +481,32 @@ function symbol_to_poly(sympolys::AbstractArray)
 
     # standardize input
     stdsympolys = map(unwrap, sympolys)
-    sort!(stdsympolys, lt=(<ₑ))
+    sort!(stdsympolys, lt = (<ₑ))
 
     symidx = findfirst(x -> x isa BasicSymbolic, stdsympolys)
     varT = vartype(stdsympolys[symidx])
 
     poly_to_bs = Bijections.Bijection{SymbolicUtils.PolyVarT, BasicSymbolic{varT}}()
     bs_to_poly = Bijections.active_inv(poly_to_bs)
+
+    vars = BasicSymbolic{varT}[]
+    for f in stdsympolys
+        append!(vars, get_variables(f))
+    end
+    unique!(vars)
+    sort!(vars, lt = (<ₑ))
+    for var in vars
+        SymbolicUtils.to_poly!(poly_to_bs, bs_to_poly, var)
+    end
+
     polyforms = map(f -> as_concrete_polynomial(SymbolicUtils.to_poly!(poly_to_bs, bs_to_poly, f)), stdsympolys)
     # Discover common coefficient type
-    commontype = mapreduce(coefftype, promote_type, polyforms, init=Int)
-    @assert commontype <: Union{Integer,Rational} "Only integer and rational coefficients are supported as input."
+    commontype = mapreduce(coefftype, promote_type, polyforms, init = Int)
+    @assert commontype <: Union{Integer, Rational} "Only integer and rational coefficients are supported as input."
 
     polynoms = map(Base.Fix1(poly_to_coefftype, commontype), polyforms)
 
-    polynoms, poly_to_bs
+    return polynoms, poly_to_bs
 end
 
 #=
