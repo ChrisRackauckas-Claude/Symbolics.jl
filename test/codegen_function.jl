@@ -12,6 +12,15 @@ RuntimeGeneratedFunctions.init(@__MODULE__)
 
 ir = IRStructure{SymReal}()
 
+@testset "Public code-generation API" begin
+    @test (@doc Symbolics.CodegenFunctionOptions) !== nothing
+    @test (@doc Symbolics.codegen_function) !== nothing
+    @static if VERSION >= v"1.11"
+        @test Base.ispublic(Symbolics, :CodegenFunctionOptions)
+        @test Base.ispublic(Symbolics, :codegen_function)
+    end
+end
+
 @testset "NaNMath" begin
     oop, iip = Symbolics.codegen_function(ir, [sqrt(a), sin(b)], [[a, b]]; nanmath = true, sort_addmul = true)
     oop = eval(oop)

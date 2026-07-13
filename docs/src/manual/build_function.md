@@ -22,6 +22,17 @@ give back the function handle.
 build_function
 ```
 
+## Low-Level Code Generation
+
+`codegen_function` generates Julia function expressions from an existing symbolic IR. Most users
+should use `build_function`, while downstream code-generation systems can reuse an existing
+`SymbolicUtils.IRStructure` and bundle options without keyword-driven specialization.
+
+```@docs
+Symbolics.CodegenFunctionOptions
+Symbolics.codegen_function
+```
+
 ## Target-Specific Definitions
 
 ```@docs

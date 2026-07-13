@@ -93,10 +93,20 @@ function CodegenFunctionOptions(;
     )
 end
 
-# Backwards-compatible keyword entry point. Any function that still calls `codegen_function`
-# with keyword arguments continues to work; the options are bundled into a `CodegenFunctionOptions`
-# and dispatched to the struct-based methods below. Unknown keywords are dropped by the
-# `CodegenFunctionOptions` constructor, exactly as they were dropped by the old `kwargs...` sink.
+"""
+    codegen_function(ir, expr, args[, options])
+    codegen_function(ir, expr, args; kwargs...)
+
+Generate out-of-place and in-place Julia function expressions from symbolic code-generation IR.
+
+`ir` is a `SymbolicUtils.IRStructure`, `expr` is the symbolic expression to generate,
+and `args` describes the generated function arguments. Pass a [`CodegenFunctionOptions`](@ref)
+instance or the corresponding keywords to control code generation. The function returns a tuple
+containing the out-of-place and in-place function expressions.
+
+This is the low-level code-generation interface. Prefer [`build_function`](@ref) unless an
+existing `IRStructure` must be reused.
+"""
 function codegen_function(ir::IRStructure{VartypeT}, expr, args::Vector; kwargs...)
     return codegen_function(ir, expr, args, CodegenFunctionOptions(; kwargs...))
 end
