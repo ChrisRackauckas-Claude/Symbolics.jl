@@ -70,7 +70,19 @@ end
 Base.:(==)(I1::Integral, I2::Integral) = convert(Bool, simplify(isequal(I1.domain, I2.domain)))
 
 const INTEGRAL_SALT = 0xb7d4e1928c3a6f50
+function _isequal_integral_domain(
+        d1::IntervalSets.AbstractInterval, d2::IntervalSets.AbstractInterval
+    )
+    if eltype(d1) <: Union{Num, SymbolicT} || eltype(d2) <: Union{Num, SymbolicT}
+        return IntervalSets.closedendpoints(d1) == IntervalSets.closedendpoints(d2) &&
+            all(splat(isequal), zip(IntervalSets.endpoints(d1), IntervalSets.endpoints(d2)))
+    end
+    return isequal(d1, d2)
+end
+_isequal_integral_domain(d1, d2) = isequal(d1, d2)
+
 Base.isequal(I1::Integral, I2::Integral) =
-    isequal(I1.domain.variables, I2.domain.variables) && isequal(I1.domain.domain, I2.domain.domain)
+    isequal(I1.domain.variables, I2.domain.variables) &&
+    _isequal_integral_domain(I1.domain.domain, I2.domain.domain)
 Base.hash(I::Integral, h::UInt) =
     hash(I.domain.domain, hash(I.domain.variables, hash(INTEGRAL_SALT, h)))
