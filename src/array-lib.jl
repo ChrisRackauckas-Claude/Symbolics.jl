@@ -179,3 +179,9 @@ end
 end
 
 @register_symbolic LinearAlgebra.tr(x::AbstractMatrix)
+
+# Eigenvalues of a symbolic matrix have no closed form, so `eigmax`/`eigmin`
+# build unevaluated symbolic terms (like `tr`) rather than computing numerically;
+# without this they fall through to `eigvals!`, which errors on a symbolic matrix.
+@register_symbolic LinearAlgebra.eigmax(x::AbstractMatrix)
+@register_symbolic LinearAlgebra.eigmin(x::AbstractMatrix)

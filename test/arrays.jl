@@ -4,7 +4,7 @@ using Symbolics: symtype, shape, wrap, unwrap, Arr, jacobian, @variables, value,
 using Base: Slice
 using SymbolicUtils: Sym, term, operation, search_variables
 import SymbolicUtils.Code: toexpr
-import LinearAlgebra: dot, Adjoint, cross, diagm
+import LinearAlgebra: dot, Adjoint, cross, diagm, eigmax, eigmin
 import ..limit2
 
 struct TestMetaT end
@@ -535,6 +535,15 @@ end
     @variables x[1:3, 1:3]
     @test isequal(exp(x), wrap(exp(unwrap(x))))
     @test isequal(exp(collect(x)), exp(SConst(collect(unwrap(x)))))
+end
+
+@testset "eigmax/eigmin build symbolic terms" begin
+    @variables x[1:3, 1:3]
+    @test operation(unwrap(eigmax(x))) === eigmax
+    @test operation(unwrap(eigmin(x))) === eigmin
+    # numeric behavior is untouched
+    @test eigmax([2.0 0 0; 0 3 0; 0 0 5]) == 5.0
+    @test eigmin([2.0 0 0; 0 3 0; 0 0 5]) == 2.0
 end
 
 @testset "`transpose(::Arr) * Arr`" begin
